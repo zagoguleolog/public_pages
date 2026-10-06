@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="googlebot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="bingbot" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+    <meta name="referrer" content="no-referrer">
+    <title>Страница</title>
+    <style>
+      body { font-family: Arial, sans-serif; margin: 0; background: #f5f5f5; color: #222; }
+      main { max-width: 680px; margin: 12vh auto; padding: 24px; text-align: center; }
+      .card { background: #fff; padding: 28px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+    </style>
+  </head>
+  <body>
+    <main><div class="card" id="status">Открываю страницу…</div></main>
+    <script>
+      (async function () {
+        function decodeKey(value) {
+          var base64 = value.replace(/-/g, "+").replace(/_/g, "/");
+          while (base64.length % 4) { base64 += "="; }
+          var binary = atob(base64);
+          var bytes = new Uint8Array(binary.length);
+          for (var i = 0; i < binary.length; i += 1) { bytes[i] = binary.charCodeAt(i); }
+          return bytes;
+        }
+
+        try {
+          var encodedKey = location.hash.slice(1);
+          if (!encodedKey) { throw new Error("missing key"); }
+          var response = await fetch("./payload.bin", { cache: "no-store" });
+          if (!response.ok) { throw new Error("payload unavailable"); }
+          var payload = new Uint8Array(await response.arrayBuffer());
+          var key = await crypto.subtle.importKey("raw", decodeKey(encodedKey), "AES-GCM", false, ["decrypt"]);
+          var plaintext = await crypto.subtle.decrypt(
+            { name: "AES-GCM", iv: payload.slice(0, 12) },
+            key,
+            payload.slice(12),
+          );
+          var html = new TextDecoder("utf-8").decode(plaintext);
+          document.open();
+          document.write(html);
+          document.close();
+        } catch (error) {
+          document.getElementById("status").textContent = "Ссылка недействительна.";
+        }
+      }());
+    </script>
+  </body>
+</html>
