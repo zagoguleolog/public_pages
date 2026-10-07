@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+    <title>Новости НИУ ВШЭ — проводятся испытания</title>
+    <link rel="stylesheet" href="./app.css">
+  </head>
+  <body>
+    <div id="viewport">
+      <div id="stage">
+        <div class="progress"><div id="progressBar"></div></div>
+
+        <div class="test-notice" role="status">Проводятся испытания — не выключайте телек и ноут до понедельника</div>
+
+        <header class="topbar">
+          <div class="brand-mark"></div>
+          <div class="brand-title">НИУ ВШЭ<span>Санкт-Петербург</span></div>
+          <div class="section-title">НОВОСТИ КАМПУСА<span>Люди · идеи · исследования</span></div>
+          <div class="clock-panel"><strong id="clock">00:00</strong><span>МОСКОВСКОЕ ВРЕМЯ</span></div>
+        </header>
+
+        <main class="content" id="content">
+          <section class="photo-card" id="photoCard">
+            <div class="photo-shade"></div>
+            <div class="photo-meta">
+              <span id="newsDate">Новости</span>
+              <span id="counter">1/9</span>
+            </div>
+          </section>
+
+          <section class="story-card">
+            <div class="story-kicker">ГЛАВНОЕ СЕГОДНЯ</div>
+            <h1 id="headline">Загружаю новости кампуса…</h1>
+            <p id="lead">Локальная версия экрана подготовлена для встроенного браузера LG webOS 1.4.</p>
+            <div class="story-bottom">
+              <div class="scan-copy">
+                <strong>Читайте историю целиком</strong>
+                <span>Наведите камеру на QR-код</span>
+                <small>spb.hse.ru</small>
+              </div>
+              <div class="qr-box"><img id="qrImage" alt="QR-код новости"></div>
+            </div>
+          </section>
+        </main>
+
+        <aside class="factbar"><b>О ВЫШКЕ</b><span id="factText">Проектные форматы обучения соединяют реальные задачи, исследования и командную работу.</span></aside>
+
+        <footer class="bottombar">
+          <div class="schedule-block">
+            <span class="footer-label">РАСПИСАНИЕ</span>
+            <strong id="pairTitle">Учебный день</strong>
+            <small id="pairSub">Определяю текущую пару…</small>
+          </div>
+          <div class="weather-block">
+            <span class="footer-label">САНКТ-ПЕТЕРБУРГ</span>
+            <strong id="weatherTemp">—°</strong>
+            <small id="weatherWind">ветер — м/с</small>
+          </div>
+          <div class="next-block">
+            <span class="footer-label">ДАЛЕЕ</span>
+            <strong id="nextLabel">—</strong>
+            <small id="nextIn">через —</small>
+          </div>
+        </footer>
+
+        <div id="errorBanner">Не удалось прочитать локальные данные. Повторная попытка через минуту.</div>
+      </div>
+    </div>
+    <script src="./app.js"></script>
+  </body>
+</html>
