@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="#071d49">
+    <title>Новости Питерской Вышки — вертикальный экран</title>
+    <link rel="stylesheet" href="app.css">
+  </head>
+  <body>
+    <div id="viewport"><div id="stage">
+      <div class="progress"><i id="progress"></i></div>
+      <header>
+        <div class="brand"><i></i><div><b>НИУ ВШЭ</b><span>Санкт-Петербург</span></div></div>
+        <div class="edition"><b>Новости кампуса</b><span>Люди · идеи · исследования</span></div>
+        <div class="clock"><b id="clock">00:00</b><span>Московское время</span></div>
+      </header>
+      <main id="story">
+        <div class="photo"><img id="photo" alt=""><div class="shade"></div><span id="date">12 октября 2026</span><b id="counter">1 / 8</b></div>
+        <article>
+          <div class="section" id="section">Наука</div>
+          <h1 id="title">Новости Питерской Вышки</h1><p id="lead"></p>
+          <div class="scan"><div><b>История целиком — на сайте</b><span>Наведите камеру на QR-код</span><small>spb.hse.ru</small></div><img id="qr" alt="QR-код новости"></div>
+        </article>
+      </main>
+      <aside class="fact"><b>О Вышке</b><span id="fact">Питерская Вышка соединяет образование, исследования и реальные городские проекты.</span></aside>
+      <section class="widgets">
+        <div class="schedule"><span>Расписание</span><b id="pairTitle">Учебный день</b><small id="pairSub">Определяю текущую пару…</small></div>
+        <div class="weather"><span>Санкт-Петербург</span><b id="weatherTemp">12°</b><small id="weatherWind">ветер 4 м/с</small></div>
+        <div class="next"><span>Далее</span><b id="nextLabel">—</b><small id="nextIn">через —</small></div>
+      </section>
+      <footer>Материалы и фотографии: официальная лента НИУ ВШЭ — Санкт-Петербург · снимок 12.10.2026</footer>
+    </div></div>
+    <script src="../shared/news.js"></script><script src="app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,39 @@
+* { box-sizing:border-box; }
+html,body { width:100%; height:100%; margin:0; overflow:hidden; background:#071d49; color:#0b2864; font-family:Arial,Helvetica,sans-serif; }
+#viewport { position:relative; width:100%; height:100%; overflow:hidden; }
+#stage { position:absolute; left:50%; top:50%; width:1080px; height:1920px; margin:-960px 0 0 -540px; overflow:hidden; background:#f2f4f8; transform-origin:50% 50%; }
+.progress { position:absolute; z-index:10; left:0; top:0; width:100%; height:9px; background:#cad4e5; }
+.progress i { display:block; width:0; height:100%; background:#f45f47; }
+header { position:absolute; left:52px; right:52px; top:9px; height:145px; border-bottom:2px solid #d0d8e5; }
+.brand,.edition,.clock { position:absolute; top:31px; }
+.brand { left:0; width:340px; display:flex; align-items:center; gap:17px; }
+.brand i { width:28px; height:28px; flex:0 0 auto; border-radius:50%; background:#f45f47; box-shadow:0 0 0 8px rgba(244,95,71,.12); }
+.brand b,.brand span,.edition b,.edition span,.clock b,.clock span { display:block; }
+.brand b { font-size:39px; line-height:40px; letter-spacing:-2px; }
+.brand span,.edition span,.clock span { margin-top:6px; color:#65738d; font-size:14px; letter-spacing:1.8px; text-transform:uppercase; }
+.edition { left:360px; width:330px; text-align:center; }
+.edition b { color:#f45f47; font-size:17px; letter-spacing:2px; text-transform:uppercase; }
+.clock { right:0; width:240px; text-align:right; }
+.clock b { font-size:52px; line-height:52px; letter-spacing:-3px; }
+.clock span { font-size:12px; }
+main { position:absolute; left:52px; top:181px; width:976px; height:1325px; opacity:1; transition:opacity .2s linear; }
+main.changing { opacity:.16; }
+.photo { position:absolute; left:0; top:0; width:976px; height:660px; overflow:hidden; border-radius:27px; background:#c4cbd5; box-shadow:0 18px 48px rgba(4,27,74,.2); }
+.photo>img { display:block; width:100%; height:100%; object-fit:cover; }
+.shade { position:absolute; left:0; right:0; bottom:0; height:170px; background:linear-gradient(to top,rgba(4,24,60,.76),rgba(4,24,60,0)); }
+.photo span,.photo b { position:absolute; bottom:25px; padding:13px 19px; border-radius:25px; background:#fff; font-size:21px; }
+.photo span { left:25px; }.photo b { right:25px; min-width:112px; text-align:center; }
+article { position:absolute; left:0; top:694px; width:976px; height:631px; padding:34px 38px; border-radius:27px; background:#fff; box-shadow:0 15px 42px rgba(4,27,74,.1); }
+.section { display:inline-block; padding:11px 17px; border-radius:22px; background:#f45f47; color:#fff; font-size:17px; font-weight:bold; letter-spacing:1.5px; text-transform:uppercase; }
+h1 { max-height:208px; margin:22px 0 0; overflow:hidden; font-size:53px; line-height:1.08; letter-spacing:-2px; }
+#lead { max-height:151px; margin:20px 0 0; overflow:hidden; color:#48566f; font-size:25px; line-height:1.42; }
+.scan { position:absolute; left:38px; right:38px; bottom:28px; height:125px; padding-top:22px; border-top:2px solid #d9e0ea; }
+.scan div { position:absolute; left:0; top:22px; }.scan b,.scan span,.scan small { display:block; }.scan b { font-size:23px; }.scan span { margin-top:7px; color:#68758d; font-size:18px; }.scan small { margin-top:8px; color:#f45f47; font-size:16px; font-weight:bold; }
+.scan img { position:absolute; right:0; top:15px; width:112px; height:112px; background:#fff; }
+.fact { position:absolute; left:52px; right:52px; top:1531px; height:81px; overflow:hidden; color:#374761; font-size:17px; line-height:1.4; }
+.fact b { display:inline-block; margin-right:13px; padding:9px 13px; border-radius:18px; background:#dce5f2; color:#0b2864; font-size:14px; letter-spacing:1px; text-transform:uppercase; }
+.widgets { position:absolute; left:0; right:0; top:1630px; height:222px; background:#082b69; color:#fff; }
+.widgets>div { position:absolute; top:30px; height:162px; padding:0 28px; border-right:1px solid rgba(255,255,255,.22); }
+.widgets span,.widgets b,.widgets small { display:block; }.widgets span { color:#9fb4db; font-size:13px; font-weight:bold; letter-spacing:1.5px; text-transform:uppercase; }.widgets b { margin-top:17px; font-size:26px; line-height:1.18; }.widgets small { margin-top:11px; color:#cfdaed; font-size:16px; line-height:1.3; }
+.schedule { left:24px; width:475px; }.weather { left:499px; width:263px; }.next { left:762px; width:294px; border-right:0 !important; }
+footer { position:absolute; left:0; right:0; bottom:0; height:68px; padding:25px 52px 0; color:#66738c; font-size:13px; }
