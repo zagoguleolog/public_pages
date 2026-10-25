@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#11151b">
+<title>Media Hub — Mobile UI Demo</title>
+<style>
+:root{
+  color-scheme:dark;--bg:#101319;--panel:#181d25;--panel2:#202631;--panel3:#252d39;
+  --line:#303946;--text:#edf2f8;--muted:#95a2b3;--accent:#8ab4ff;--accent2:#3b82f6;
+  --yellow:#f4c95d;--green:#39c98a;--red:#f06b75;--radius:15px;
+  font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-size:14px;line-height:1.4}
+button,input,select,textarea{font:inherit}button{cursor:pointer;color:inherit}
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.app{max-width:900px;min-height:100vh;margin:auto;background:var(--bg);padding-bottom:28px}
+.statusbar{height:32px;padding:0 17px;display:flex;align-items:center;justify-content:space-between;background:#0c0f14;color:#d9e0ea;font-size:11px;letter-spacing:.02em}
+.status-left,.status-right{display:flex;align-items:center;gap:9px}.live-dot{width:7px;height:7px;border-radius:50%;background:var(--green);display:inline-block;box-shadow:0 0 0 3px #39c98a20}
+.nav{display:flex;gap:6px;padding:9px 10px 10px;overflow-x:auto;scrollbar-width:none;background:#141920;border-bottom:1px solid var(--line);position:sticky;top:0;z-index:20}
+.nav::-webkit-scrollbar{display:none}.nav-btn{flex:1 0 66px;min-width:61px;border:1px solid transparent;background:transparent;border-radius:11px;padding:7px 4px 6px;color:var(--muted);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;min-height:57px}
+.nav-btn .ico{font-size:19px;line-height:1}.nav-btn small{font-size:10px;white-space:nowrap}.nav-btn.active{background:#29374a;color:#f4f8ff;border-color:#3b506b}.nav-btn:active{transform:scale(.98)}
+main{padding:16px 13px 28px}.page{display:none;animation:fade .16s ease}.page.active{display:block}@keyframes fade{from{opacity:.55;transform:translateY(3px)}to{opacity:1;transform:none}}
+.page-heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin:2px 1px 13px}.page-heading h1{font-size:19px;margin:0;font-weight:750;letter-spacing:-.03em}.eyebrow{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:3px}
+.device-row{display:flex;justify-content:space-between;align-items:center;margin:1px 2px 10px}.device-name{font-weight:700;font-size:14px}.subtle{color:var(--muted);font-size:11px}.status-pill{border:1px solid #2e7559;background:#16392e;color:#78e4b2;border-radius:30px;padding:4px 8px;font-size:10px;display:inline-flex;align-items:center;gap:5px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;margin-bottom:12px}.card-pad{padding:13px}.section-title{font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:750}.row{display:flex;align-items:center;gap:9px}.between{display:flex;align-items:center;justify-content:space-between;gap:10px}.grow{flex:1;min-width:0}
+.preview{position:relative;aspect-ratio:16/9;background:#222b38;overflow:hidden;display:grid;place-items:center;isolation:isolate}
+.preview-art{position:absolute;inset:0;background:radial-gradient(ellipse at 65% 35%,#47617b 0,#26394b 25%,#19222e 65%,#111820 100%)}
+.preview-art:before{content:"";position:absolute;width:46%;aspect-ratio:1;border-radius:50%;background:linear-gradient(135deg,#a9c5e2,#496b89 52%,#172d42);left:25%;top:10%;filter:blur(.3px);box-shadow:0 0 65px #9ac9f855}
+.preview-art:after{content:"";position:absolute;left:-5%;right:-5%;bottom:-38%;height:70%;background:repeating-linear-gradient(90deg,#344a5d 0 1px,transparent 1px 28px),repeating-linear-gradient(0deg,#344a5d 0 1px,transparent 1px 28px);transform:perspective(170px) rotateX(42deg);opacity:.7}
+.preview-label{z-index:1;text-align:center;color:#e7f1fb;text-shadow:0 2px 10px #0008}.preview-label strong{display:block;font-size:clamp(13px,3vw,19px);letter-spacing:.14em}.preview-label small{font-size:10px;color:#bdccdc}
+.preview-tools{position:absolute;right:9px;top:9px;display:flex;flex-direction:column;gap:6px;z-index:3}.icon-btn{width:34px;height:34px;border-radius:10px;background:#0b1018c9;border:1px solid #ffffff2b;display:grid;place-items:center;font-size:17px}.icon-btn:hover{background:#36465b}
+.preview-foot{padding:8px 11px;display:flex;justify-content:space-between;align-items:center;font-size:10px;color:var(--muted);background:#151a21}
+.playing-card{background:#281d23;border-color:#63343c}.playing-head{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:12px 13px;cursor:pointer}.playing-head .section-title{color:#ef9aa1}.playing-name{font-size:15px;font-weight:750;margin-top:4px}.playing-meta{font-size:11px;color:#d2b9bd;margin-top:2px}.playing-dot{display:inline-block;width:7px;height:7px;background:var(--red);border-radius:50%;margin-right:6px}.chev{color:#e7b6bb;font-size:18px}.playing-details{padding:0 13px 13px;border-top:1px solid #63343c55}.control-label{font-size:11px;color:#c7aeb3;margin:12px 0 6px}.segmented{display:flex;gap:5px;flex-wrap:wrap}.segmented button{border:1px solid var(--line);background:#1c222b;border-radius:8px;padding:7px 10px;font-size:11px;color:#c2ccd8}.segmented button.selected{border-color:#cf777f;background:#4a2930;color:#fff}.btn{border:1px solid var(--line);background:var(--panel3);border-radius:10px;padding:9px 12px;font-size:12px;font-weight:650;display:inline-flex;align-items:center;justify-content:center;gap:7px}
+.btn.primary{background:#2e5d99;border-color:#477dbb;color:white}.btn.ghost{background:transparent}.btn.danger{background:#48252c;border-color:#7d3d47;color:#ffb2b8}.btn.small{padding:6px 9px;font-size:11px;border-radius:8px}.btn:disabled{opacity:.4;cursor:not-allowed}.section-header{display:flex;align-items:center;justify-content:space-between;gap:8px;margin:18px 1px 10px}.section-header h2{font-size:12px;margin:0;letter-spacing:.1em;text-transform:uppercase}.tool-group{display:flex;align-items:center;gap:5px}.toggle-view{display:flex;border:1px solid var(--line);border-radius:9px;padding:2px;background:#171c23}.toggle-view button{border:0;background:transparent;border-radius:6px;color:var(--muted);width:30px;height:27px}.toggle-view button.active{background:#344357;color:white}
+.scene-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}.scene-card{border:1px solid var(--line);border-radius:13px;background:var(--panel);overflow:hidden;min-width:0;transition:border-color .15s,box-shadow .15s}.scene-card.selected{border-color:var(--yellow);box-shadow:0 0 0 1px #f4c95d40}.scene-card.ready{border-color:#27845f}.scene-card.current{border-color:var(--red);box-shadow:0 0 0 1px #f06b7540}.scene-card.unavailable{border-color:#5a4146}.scene-thumb{height:auto;aspect-ratio:4/3;position:relative;display:grid;place-items:center;background:linear-gradient(145deg,#293a4a,#111922);overflow:hidden;cursor:pointer}.scene-thumb:before{content:"";position:absolute;width:53%;aspect-ratio:1;border-radius:50%;background:radial-gradient(circle at 35% 30%,#8ba9c3,#344a5e 60%,#17232e);opacity:.75}.scene-thumb.web:before{width:70%;height:65%;aspect-ratio:auto;border-radius:7px;background:linear-gradient(#a2b8c9 0 12%,#425c71 12% 100%);box-shadow:0 6px 20px #0005}.scene-thumb.camera:before{background:radial-gradient(circle,#7ea3b6,#253c4b 65%)}.scene-thumb.file:before{border-radius:8px;background:linear-gradient(135deg,#d4a96a,#754c3c 60%,#352c34)}.scene-thumb .play-overlay{position:relative;z-index:1;width:40px;height:40px;border-radius:50%;background:#0a111bc2;border:1px solid #ffffff70;display:grid;place-items:center;font-size:16px;padding-left:2px}.scene-card.current .play-overlay{background:#8f3d49d9}.scene-card.selected .play-overlay{background:#98752dce}.scene-card-body{padding:9px}.scene-name{font-size:12px;font-weight:750;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.scene-type{font-size:10px;color:var(--muted);margin-top:2px}.scene-state{display:flex;align-items:center;gap:5px;font-size:10px;margin-top:7px;color:var(--muted)}.state-dot{width:6px;height:6px;border-radius:50%;background:#758295;flex:none}.state-ready{color:var(--green)}.state-ready .state-dot{background:var(--green)}.state-current{color:var(--red)}.state-current .state-dot{background:var(--red)}.state-checking{color:var(--yellow)}.state-checking .state-dot{background:var(--yellow);animation:pulse .8s infinite alternate}@keyframes pulse{to{opacity:.3}}
+.scene-actions{display:flex;justify-content:space-between;gap:5px;margin-top:8px}.scene-actions .btn{flex:1;padding:6px 5px;font-size:10px}.scene-list{display:flex;flex-direction:column;gap:7px}.scene-line{display:flex;align-items:center;gap:10px;border:1px solid var(--line);background:var(--panel);border-radius:12px;padding:9px;min-width:0}.scene-line.selected{border-color:var(--yellow)}.scene-line.ready{border-color:#27845f}.scene-line.current{border-color:var(--red)}.line-thumb{width:51px;height:43px;flex:none;border-radius:8px;background:linear-gradient(135deg,#41586d,#18232f);display:grid;place-items:center;font-size:16px}.line-info{flex:1;min-width:0}.line-name{font-weight:750;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.line-meta{font-size:10px;color:var(--muted);margin-top:2px}.line-actions{display:flex;gap:4px}.line-actions .btn{padding:6px 7px}
+.empty{border:1px dashed var(--line);border-radius:12px;padding:25px 15px;text-align:center;color:var(--muted)}.empty strong{display:block;color:var(--text);margin-bottom:5px}
+.field{display:flex;flex-direction:column;gap:6px;margin:12px 0}.field label{font-size:11px;color:#b7c1cf;font-weight:650}.field input,.field select,.field textarea,.search{width:100%;min-width:0;background:#10151c;border:1px solid #35404e;border-radius:9px;color:var(--text);padding:10px 11px;font-size:12px}.field textarea{min-height:75px;resize:vertical}.field input::placeholder,.field textarea::placeholder{color:#667486}.help{font-size:10px;color:var(--muted);margin-top:2px}.form-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:16px}.notice{border:1px solid #36516d;background:#1a2a3b;color:#c9def8;border-radius:10px;padding:10px 11px;font-size:11px;margin:10px 0}.notice.warn{border-color:#775d2b;background:#322a19;color:#f3d894}.notice.error{border-color:#75404a;background:#321e24;color:#ffb4bc}.notice.success{border-color:#2c6d53;background:#183126;color:#9be8c3}
+.switch{width:39px;height:23px;border-radius:20px;background:#414c5a;border:0;padding:3px;display:inline-flex;align-items:center;flex:none;transition:background .15s}.switch:after{content:"";width:17px;height:17px;border-radius:50%;background:#d7dfe8;transition:transform .15s}.switch.on{background:#267a58}.switch.on:after{transform:translateX(16px);background:#fff}.setting-row{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid #2c3440}.setting-row:last-child{border-bottom:0}.setting-title{font-size:12px;font-weight:650}.setting-desc{font-size:10px;color:var(--muted);margin-top:3px}.chip{display:inline-flex;align-items:center;border:1px solid var(--line);background:#202733;border-radius:7px;padding:4px 7px;font-size:10px;color:#c3cfdd}.event{display:grid;grid-template-columns:54px 12px minmax(0,1fr) auto;align-items:center;gap:8px;padding:12px 0;border-bottom:1px solid #2b333e}.event:last-child{border-bottom:0}.event-time{font-size:12px;font-weight:750;font-variant-numeric:tabular-nums}.event-rail{height:37px;width:2px;background:#435c77;position:relative;justify-self:center}.event-rail:before{content:"";position:absolute;width:8px;height:8px;border-radius:50%;background:var(--accent);left:-3px;top:4px}.event-title{font-weight:700;font-size:12px}.event-sub{font-size:10px;color:var(--muted);margin-top:2px}.preview-overlay{position:relative;aspect-ratio:16/9;border:1px solid var(--line);border-radius:12px;overflow:hidden;background:linear-gradient(140deg,#243443,#121821);display:grid;place-items:center}.overlay-demo{position:absolute;left:12px;right:12px;bottom:12px;display:flex;justify-content:space-between;align-items:end}.overlay-logo{font-size:11px;font-weight:850;letter-spacing:.12em;background:#e9f1f9;color:#17202a;padding:6px 8px;border-radius:4px}.overlay-lower{font-size:10px;background:#111923cc;border-left:3px solid var(--accent);padding:7px 9px;max-width:65%}.layer-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #2b333e}.layer-row:last-child{border:0}.layer-icon{width:32px;height:32px;border-radius:8px;background:#283545;display:grid;place-items:center}.layer-row .grow{font-size:12px;font-weight:650}.log-row{padding:11px 0;border-bottom:1px solid #2b333e}.log-row:last-child{border-bottom:0}.log-top{display:flex;align-items:center;gap:7px;font-size:10px}.log-level{font-size:9px;font-weight:800;padding:3px 6px;border-radius:5px;background:#293747;color:#b9d7ff}.log-level.warn{background:#45391f;color:#f3d48a}.log-level.error{background:#48252c;color:#ffabb4}.log-message{font-size:12px;margin-top:5px;overflow-wrap:anywhere}.log-context{font-size:10px;color:var(--muted);margin-top:3px}.filter-row{display:flex;gap:7px;margin:12px 0}.filter-row>*{flex:1;min-width:0}.check-row{display:flex;align-items:center;gap:9px;font-size:12px;padding:7px 0}.check-row input{accent-color:#7aa7e8;width:15px;height:15px}.order-controls{display:flex;gap:4px}.order-controls button{border:1px solid var(--line);background:#202733;border-radius:6px;width:27px;height:27px;color:#c8d2df}.modal-backdrop{position:fixed;inset:0;background:#05080dcc;z-index:100;display:none;align-items:flex-end;justify-content:center;padding:0}.modal-backdrop.show{display:flex}.modal{width:100%;max-width:600px;max-height:91dvh;overflow:auto;background:#181e27;border:1px solid #3b4655;border-radius:20px 20px 0 0;padding:17px 15px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -12px 45px #0008}.modal h2{font-size:17px;margin:0}.modal-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.modal-close{border:0;background:#2b3440;border-radius:9px;width:32px;height:32px;font-size:18px}.toast{position:fixed;z-index:200;bottom:20px;left:50%;transform:translate(-50%,20px);opacity:0;pointer-events:none;background:#e4edf7;color:#111923;border-radius:12px;padding:10px 14px;box-shadow:0 6px 30px #0007;font-size:12px;font-weight:700;transition:.2s;max-width:calc(100% - 28px)}.toast.show{opacity:1;transform:translate(-50%,0)}.fullscreen-view{position:fixed;inset:0;background:#070a0f;z-index:150;display:none;align-items:center;justify-content:center;padding:16px}.fullscreen-view.show{display:flex}.fullscreen-view .preview{width:min(100%,1200px);border-radius:10px}.fullscreen-close{position:absolute;right:16px;top:16px;z-index:3}.muted-btn{color:var(--muted)}.danger-text{color:#ff9aa4}.footnote{font-size:10px;color:var(--muted);margin:12px 2px}.page-stack{display:flex;flex-direction:column;gap:12px}
+@media(min-width:650px){main{padding:22px 22px 35px}.scene-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.nav{justify-content:center}.nav-btn{flex:0 1 90px}.modal-backdrop{align-items:center;padding:20px}.modal{border-radius:18px;padding:20px}.preview-tools{right:12px;top:12px}}
+@media(max-width:370px){main{padding:12px 9px 22px}.nav{padding-left:6px;padding-right:6px;gap:3px}.nav-btn{min-width:55px;flex-basis:55px}.scene-grid{gap:7px}.scene-card-body{padding:7px}.scene-actions .btn{font-size:9px}.page-heading h1{font-size:17px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="statusbar">
+    <div class="status-left"><span id="clock">17:21</span><span style="opacity:.35">|</span><span class="live-dot"></span><span id="connectionText">ONLINE</span></div>
+    <div class="status-right"><span title="Wi-Fi">◔ Wi-Fi</span><span title="Устройство">▰ 86%</span><span id="deviceMini">Ig-tv1</span></div>
+  </div>
+  <nav class="nav" aria-label="Основная навигация">
+    <button class="nav-btn active" data-page="home"><span class="ico">⌂</span><small>Главная</small></button>
+    <button class="nav-btn" data-page="schedule"><span class="ico">◷</span><small>Расписание</small></button>
+    <button class="nav-btn" data-page="overlay"><span class="ico">▧</span><small>Оверлей</small></button>
+    <button class="nav-btn" data-page="bootstrap"><span class="ico">⇧</span><small>Bootstrap</small></button>
+    <button class="nav-btn" data-page="logs"><span class="ico">≡</span><small>Логи</small></button>
+    <button class="nav-btn" data-page="settings"><span class="ico">⚙</span><small>Настройки</small></button>
+  </nav>
+  <main>
+    <section class="page active" id="page-home">
+      <div class="device-row">
+        <div><div class="eyebrow">Устройство</div><div class="device-name" id="deviceName">Ig-tv1 <span class="subtle">· Standalone</span></div></div>
+        <span class="status-pill" id="deviceStatus"><span class="live-dot"></span> ONLINE</span>
+      </div>
+      <div class="card">
+        <div class="preview" id="mainPreview">
+          <div class="preview-art"></div>
+          <div class="preview-label"><strong>MEDIA HUB</strong><small>DEVICE PREVIEW · DEMO</small></div>
+          <div class="preview-tools"><button class="icon-btn" id="refreshShot" title="Обновить скриншот">↻</button><button class="icon-btn" id="fullscreenShot" title="Полный экран">⛶</button></div>
+        </div>
+        <div class="preview-foot"><span id="shotStatus">Последнее обновление: только что</span><span>16:9</span></div>
+      </div>
+      <div class="card playing-card" id="playingCard">
+        <div class="playing-head" id="playingToggle">
+          <div class="grow"><div class="section-title"><span class="playing-dot"></span>Сейчас играет</div><div class="playing-name" id="playingName">Demo Scene</div><div class="playing-meta" id="playingMeta">Web / URL · Воспроизведение активно</div></div>
+          <span class="chev" id="playingChevron">⌄</span>
+        </div>
+        <div class="playing-details" id="playingDetails">
+          <div class="control-label">Поворот</div>
+          <div class="segmented" id="rotationGroup"><button class="selected" data-rotation="0">0°</button><button data-rotation="90">90°</button><button data-rotation="180">180°</button><button data-rotation="270">270°</button></div>
+          <div class="control-label">Масштабирование</div>
+          <div class="segmented" id="scaleGroup"><button class="selected" data-scale="fit">Вписать</button><button data-scale="fill">Заполнить</button></div>
+          <div class="row" style="margin-top:13px;justify-content:space-between"><span class="subtle">Настройки текущей сцены</span><button class="btn small" id="reloadPlayer">↻ Обновить плеер</button></div>
+        </div>
+      </div>
+      <div class="section-header">
+        <h2>Сцены и источники <span class="subtle" id="sceneCount">3</span></h2>
+        <div class="tool-group"><button class="btn small primary" id="addScene">＋ Добавить</button><div class="toggle-view"><button class="active" data-view="grid" title="Карточки">▦</button><button data-view="list" title="Строки">☷</button></div></div>
+      </div>
+      <div id="sceneContainer"></div>
+      <div class="footnote">Демо использует локальные примеры. Команды и статусы имитируются в браузере — реальное устройство не изменяется.</div>
+    </section>
+
+    <section class="page" id="page-schedule">
+      <div class="page-heading"><div><div class="eyebrow">Автоматизация</div><h1>Расписание</h1></div><button class="btn primary" id="addEvent">＋ Событие</button></div>
+      <div class="card card-pad">
+        <div class="setting-row" style="padding-top:0"><div><div class="setting-title">Автоматическое воспроизведение</div><div class="setting-desc">Исполнять сохранённые события</div></div><button class="switch on" data-switch="scheduleEnabled" aria-label="Включить расписание"></button></div>
+        <div class="between" style="margin-top:12px"><div><div class="section-title">Сегодня</div><div style="font-size:16px;font-weight:750;margin-top:3px" id="todayLabel">16 октября 2026</div></div><span class="chip">Локальное расписание</span></div>
+        <div id="eventList" style="margin-top:8px"></div>
+      </div>
+      <div class="notice">Демо показывает пример расписания. В реальной версии нужно явно указывать, где исполняются события: на устройстве или локальном контроллере.</div>
+    </section>
+
+    <section class="page" id="page-overlay">
+      <div class="page-heading"><div><div class="eyebrow">Графический слой</div><h1>Оверлей</h1></div><button class="switch on" data-switch="overlayEnabled" aria-label="Включить оверлей"></button></div>
+      <div class="card card-pad">
+        <div class="between" style="margin-bottom:10px"><div><div class="section-title">Предпросмотр</div><div class="subtle">Условная композиция поверх видео</div></div><span class="chip" id="overlayStatus">Включён</span></div>
+        <div class="preview-overlay" id="overlayPreview"><div style="color:#e5eef8;font-size:11px;letter-spacing:.2em">VIDEO CONTENT</div><div class="overlay-demo"><div class="overlay-logo" id="overlayLogo">MEDIA HUB</div><div class="overlay-lower" id="overlayCaption">Трансляция · Demo Scene</div></div></div>
+        <div class="field"><label for="overlayText">Текст нижней плашки</label><input id="overlayText" value="Трансляция · Demo Scene"></div>
+        <div class="setting-row"><div><div class="setting-title">Логотип</div><div class="setting-desc">Показывать брендовый слой</div></div><button class="switch on" data-switch="logoEnabled" aria-label="Логотип"></button></div>
+        <div class="setting-row"><div><div class="setting-title">Нижняя плашка</div><div class="setting-desc">Текст поверх изображения</div></div><button class="switch on" data-switch="captionEnabled" aria-label="Нижняя плашка"></button></div>
+        <div class="form-actions"><button class="btn" id="resetOverlay">Сбросить</button><button class="btn primary" id="applyOverlay">Применить</button></div>
+      </div>
+      <div class="card card-pad"><div class="between" style="margin-bottom:6px"><div class="section-title">Слои</div><button class="btn small" id="addLayer">＋ Добавить слой</button></div><div id="layerList"></div></div>
+    </section>
+
+    <section class="page" id="page-bootstrap">
+      <div class="page-heading"><div><div class="eyebrow">Запуск устройства</div><h1>Bootstrap</h1></div><span class="chip">Конфигурация</span></div>
+      <div class="card card-pad">
+        <div class="setting-row" style="padding-top:0"><div><div class="setting-title">Автозапуск плеера</div><div class="setting-desc">Запускать плеер при старте</div></div><button class="switch on" data-switch="autostart" aria-label="Автозапуск плеера"></button></div>
+        <div class="field"><label for="startupScene">Стартовая сцена</label><select id="startupScene"></select><div class="help">Выбор сцены не означает, что её запуск уже проверен.</div></div>
+        <div class="field"><label for="startupMode">Поведение при запуске</label><select id="startupMode"><option value="last">Восстановить последнюю сцену</option><option value="fixed">Запустить выбранную сцену</option><option value="idle">Запуститься без воспроизведения</option></select></div>
+        <div class="setting-row"><div><div class="setting-title">Локальные ресурсы</div><div class="setting-desc" id="resourceStatus">Проверка в демо не выполнялась</div></div><span class="chip" id="resourceChip">Не проверено</span></div>
+        <div class="form-actions"><button class="btn" id="checkConfig">Проверить конфигурацию</button><button class="btn primary" id="saveBootstrap">Сохранить</button></div>
+      </div>
+      <div class="notice warn">Реальный автозапуск зависит от возможностей целевой платформы и системных ограничений. Этот макет не меняет настройки ОС.</div>
+    </section>
+
+    <section class="page" id="page-logs">
+      <div class="page-heading"><div><div class="eyebrow">Диагностика</div><h1>Логи устройства</h1></div><button class="btn" id="refreshLogs">↻ Обновить</button></div>
+      <div class="card card-pad">
+        <div class="filter-row"><select id="logLevel" aria-label="Уровень логов"><option value="ALL">Все уровни</option><option value="INFO">INFO</option><option value="WARN">WARN</option><option value="ERROR">ERROR</option></select><input id="logSearch" class="search" placeholder="Поиск по сообщениям…" aria-label="Поиск"></div>
+        <div class="between"><span class="subtle" id="logCount">4 записи</span><button class="btn small" id="copyLogs">Копировать видимые</button></div>
+        <div id="logList"></div>
+        <div class="form-actions"><button class="btn" id="loadMoreLogs">Загрузить ещё</button></div>
+      </div>
+    </section>
+
+    <section class="page" id="page-settings">
+      <div class="page-heading"><div><div class="eyebrow">Персонализация</div><h1>Настройки</h1></div><button class="btn" id="resetSettings">Сбросить</button></div>
+      <div class="card card-pad">
+        <div class="section-title" style="margin-bottom:4px">Интерфейс</div>
+        <div class="setting-row"><div><div class="setting-title">Вид списка сцен</div><div class="setting-desc">Карточки или компактные строки</div></div><select id="defaultView" style="width:118px;background:#10151c;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:7px;font-size:11px"><option value="grid">Карточки</option><option value="list">Строки</option></select></div>
+        <div class="setting-row"><div><div class="setting-title">Показывать статусную строку</div><div class="setting-desc">Время и состояние устройства</div></div><button class="switch on" data-switch="showStatusbar" aria-label="Показывать статусную строку"></button></div>
+        <div class="section-title" style="margin:17px 0 5px">Навигация · видимость и порядок</div>
+        <div id="navSettings"></div>
+      </div>
+      <div class="card card-pad">
+        <div class="section-title">Устройство</div>
+        <div class="setting-row"><div><div class="setting-title">Название</div><div class="setting-desc">Локальная подпись в панели</div></div><input id="deviceRename" value="Ig-tv1" style="width:125px;background:#10151c;color:var(--text);border:1px solid var(--line);border-radius:8px;padding:8px;font-size:11px"></div>
+        <div class="setting-row"><div><div class="setting-title">Состояние подключения</div><div class="setting-desc">Демо-режим, без реального API</div></div><span class="chip">ONLINE</span></div>
+        <div class="form-actions"><button class="btn primary" id="saveDeviceSettings">Сохранить</button></div>
+      </div>
+      <div class="card card-pad"><div class="section-title">О приложении</div><div class="setting-row"><div><div class="setting-title">Media Hub Mobile UI</div><div class="setting-desc">Интерактивный HTML-прототип · v0.1</div></div><span class="chip">DEMO</span></div><p class="subtle">Все данные демонстрационные. Прототип не подключён к реальному устройству и не выполняет команды Media Hub.</p></div>
+    </section>
+  </main>
+</div>
+
+<div class="modal-backdrop" id="modalBackdrop" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+  <div class="modal"><div class="modal-head"><h2 id="modalTitle">Добавить источник</h2><button class="modal-close" id="modalClose" aria-label="Закрыть">×</button></div><div id="modalContent"></div></div>
+</div>
+<div class="fullscreen-view" id="fullscreenView"><button class="icon-btn fullscreen-close" id="closeFullscreen">×</button><div class="preview" id="fullPreview"><div class="preview-art"></div><div class="preview-label"><strong>MEDIA HUB</strong><small>DEVICE PREVIEW · DEMO</small></div></div></div>
+<div class="toast" id="toast"></div>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const $$ = s => [...document.querySelectorAll(s)];
+  const state = {
+    activePage:'home', view:'grid', selectedId:'scene-1', currentId:'scene-1',
+    playingExpanded:true, rotation:0, scale:'fit', scheduleEnabled:true, overlayEnabled:true,
+    logoEnabled:true, captionEnabled:true, autostart:true, showStatusbar:true,
+    scenes:[
+      {id:'scene-1',name:'Demo Scene',type:'Web / URL',url:'https://example.com',kind:'web',status:'current',title:'Example Domain'},
+      {id:'scene-2',name:'Camera 01',type:'Camera / Stream',url:'rtsp://camera.local/stream',kind:'camera',status:'unchecked'},
+      {id:'scene-3',name:'Local Image',type:'Локальный файл',url:'media/wallpaper.jpg',kind:'file',status:'unavailable'}
+    ],
+    events:[
+      {id:1,time:'09:00',name:'Demo Scene',repeat:'Ежедневно'},
+      {id:2,time:'12:00',name:'Camera 01',repeat:'Пн–Пт'},
+      {id:3,time:'18:00',name:'Evening Loop',repeat:'Ежедневно'}
+    ],
+    layers:[{id:1,name:'Логотип',type:'Графика',enabled:true,icon:'▧'},{id:2,name:'Нижняя плашка',type:'Текст',enabled:true,icon:'T'}],
+    nav:[
+      {id:'home',icon:'⌂',name:'Главная',visible:true},
+      {id:'schedule',icon:'◷',name:'Расписание',visible:true},
+      {id:'overlay',icon:'▧',name:'Оверлей',visible:true},
+      {id:'bootstrap',icon:'⇧',name:'Bootstrap',visible:true},
+      {id:'logs',icon:'≡',name:'Логи',visible:true},
+      {id:'settings',icon:'⚙',name:'Настройки',visible:true}
+    ],
+    logs:[
+      {time:'17:21:08',level:'INFO',message:'Screenshot updated',context:'device.capture'},
+      {time:'17:20:52',level:'INFO',message:'Playback started: Demo Scene',context:'player.session'},
+      {time:'17:19:13',level:'WARN',message:'Source check timeout',context:'source.check'},
+      {time:'17:18:06',level:'INFO',message:'Device connection established',context:'device.connection'},
+      {time:'17:16:44',level:'ERROR',message:'Local resource not found: wallpaper.jpg',context:'source.file'}
+    ],
+    logVisible:4, eventCounter:3, layerCounter:2, sceneCounter:3
+  };
+  const navNames = {home:'Главная',schedule:'Расписание',overlay:'Оверлей',bootstrap:'Bootstrap',logs:'Логи устройства',settings:'Настройки'};
+  const toast = msg => {const el=$('#toast');el.textContent=msg;el.classList.add('show');clearTimeout(toast.timer);toast.timer=setTimeout(()=>el.classList.remove('show'),2400)};
+  const esc = s => String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+  function setPage(id){if(!state.nav.some(n=>n.id===id&&n.visible)){toast('Эта страница скрыта в настройках');return}
+    state.activePage=id;$$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+id));renderNav();window.scrollTo({top:0,behavior:'smooth'});}
+  function renderNav(){const nav=$('.nav');nav.innerHTML=state.nav.filter(n=>n.visible).map(n=>`<button class="nav-btn ${state.activePage===n.id?'active':''}" data-page="${n.id}"><span class="ico">${n.icon}</span><small>${esc(n.name)}</small></button>`).join('');}
+  function statusText(s){return ({current:'Играет',ready:'Готова',checking:'Проверка…',unavailable:'Недоступна',unchecked:'Не проверена',starting:'Запуск…'})[s]||s}
+  function sceneClass(s){return s.status==='current'?'current':s.status==='ready'?'ready':s.status==='unavailable'?'unavailable':s.id===state.selectedId?'selected':''}
+  function sceneStateClass(s){return s.status==='current'?'state-current':s.status==='ready'?'state-ready':s.status==='checking'?'state-checking':''}
+  function playButton(s){return s.status==='ready'||s.status==='current' ? `<button class="btn ${s.status==='current'?'danger':'primary'}" data-play="${s.id}" ${s.status==='current'?'disabled':''}>${s.status==='current'?'● Играет':'▶ Play'}</button>`:`<button class="btn" data-check="${s.id}">⌕ Проверить</button>`}
+  function renderScenes(){
+    $('#sceneCount').textContent=state.scenes.length;
+    if(state.view==='grid'){
+      $('#sceneContainer').innerHTML=`<div class="scene-grid">${state.scenes.map(s=>`<article class="scene-card ${sceneClass(s)}" data-select="${s.id}">
+        <div class="scene-thumb ${s.kind}" data-select="${s.id}" aria-label="Выбрать ${esc(s.name)}"><button class="play-overlay" data-play="${s.id}" title="Запустить ${esc(s.name)}" ${s.status==='current'?'disabled':''}>▶</button></div>
+        <div class="scene-card-body"><div class="scene-name" title="${esc(s.name)}">${esc(s.name)}</div><div class="scene-type">${esc(s.type)}</div><div class="scene-state ${sceneStateClass(s)}"><span class="state-dot"></span>${statusText(s.status)}</div><div class="scene-actions">${playButton(s)}<button class="btn" data-more="${s.id}" title="Действия">⋯</button></div></div></article>`).join('')}</div>`;
+    } else {
+      $('#sceneContainer').innerHTML=`<div class="scene-list">${state.scenes.map(s=>`<article class="scene-line ${sceneClass(s)}" data-select="${s.id}">
+        <div class="line-thumb" data-select="${s.id}">${s.kind==='camera'?'◉':s.kind==='file'?'▧':'▣'}</div>
+        <div class="line-info" data-select="${s.id}"><div class="line-name">${esc(s.name)}</div><div class="line-meta">${esc(s.type)} · <span class="${sceneStateClass(s)}">${statusText(s.status)}</span></div></div>
+        <div class="line-actions">${playButton(s)}<button class="btn" data-more="${s.id}">⋯</button></div></article>`).join('')}</div>`;
+    }
+    updatePlaying();populateSceneSelect();
+  }
+  function updatePlaying(){const s=state.scenes.find(x=>x.id===state.currentId);$('#playingName').textContent=s?s.name:'Нет активной сцены';$('#playingMeta').textContent=s?`${s.type} · Воспроизведение активно`:'Выберите сцену ниже';$('#playingCard').style.background=s?'#281d23':'#1a2028';$('#playingCard').style.borderColor=s?'#63343c':'var(--line)';}
+  function selectScene(id){const s=state.scenes.find(x=>x.id===id);if(!s)return;state.selectedId=id;
+    if(s.status==='unchecked'||s.status==='unavailable'){s.status='checking';renderScenes();toast('Проверяем источник…');addLog('INFO',`Source check started: ${s.name}`,'source.check');setTimeout(()=>{const x=state.scenes.find(y=>y.id===id);if(!x)return;
+      if(x.kind==='file'){x.status='unavailable';x.error='Файл не найден в демо';}
+      else {x.status='ready';x.error='';}
+      renderScenes();addLog(x.status==='ready'?'INFO':'WARN',`Source check ${x.status}: ${x.name}`,'source.check');toast(x.status==='ready'?'Источник доступен':'Источник недоступен в демо');},850);
+    }else renderScenes();
+  }
+  function playScene(id){const s=state.scenes.find(x=>x.id===id);if(!s)return;if(s.status==='current'){toast('Эта сцена уже воспроизводится');return}if(s.status!=='ready'){toast('Сначала проверьте доступность сцены');selectScene(id);return}
+    s.status='starting';renderScenes();toast('Отправляем команду запуска…');addLog('INFO',`Playback requested: ${s.name}`,'player.command');
+    setTimeout(()=>{state.scenes.forEach(x=>{if(x.id===id)x.status='current';else if(x.status==='current')x.status='ready'});state.currentId=id;state.selectedId=id;renderScenes();addLog('INFO',`Playback confirmed: ${s.name}`,'player.session');toast('В демо сцена запущена');},700);
+  }
+  function openModal(title,content){$('#modalTitle').textContent=title;$('#modalContent').innerHTML=content;$('#modalBackdrop').classList.add('show');document.body.style.overflow='hidden'}
+  function closeModal(){$('#modalBackdrop').classList.remove('show');document.body.style.overflow=''}
+  function defaultSceneName(){let n=1,names=new Set(state.scenes.map(s=>s.name.toLowerCase()));while(names.has(`scene ${n}`))n++;return `Scene ${n}`}
+  function addSceneModal(editId=null){const s=editId?state.scenes.find(x=>x.id===editId):null;
+    openModal(s?'Действия со сценой':'Добавить источник',s?`<div class="notice">Выбрано: <strong>${esc(s.name)}</strong></div><button class="btn" style="width:100%;margin:4px 0" id="editScene">✎ Редактировать источник</button><button class="btn" style="width:100%;margin:4px 0" id="checkScene">⌕ Проверить доступность</button><button class="btn" style="width:100%;margin:4px 0" id="duplicateScene">▣ Дублировать</button><button class="btn danger" style="width:100%;margin:4px 0" id="deleteScene">Удалить из списка</button>`:
+    `<div class="field"><label for="sourceType">Тип источника</label><select id="sourceType"><option value="web">URL / веб-страница</option><option value="stream">Видео / медиапоток</option><option value="camera">Камера</option><option value="file">Локальный файл</option><option value="image">Изображение</option></select></div>
+    <div class="field"><label for="sourceUrl">Адрес или путь</label><input id="sourceUrl" placeholder="https://example.com" autocomplete="url"><div class="help">Для URL можно проверить страницу и получить её title.</div></div>
+    <div class="row" style="align-items:flex-end"><div class="field grow" style="margin-bottom:0"><label for="sourceName">Название сцены</label><input id="sourceName" placeholder="Автоматически определится при проверке"></div><button class="btn" id="checkUrl" style="margin-bottom:0;white-space:nowrap">Проверить</button></div>
+    <div id="sourceFeedback"></div>
+    <div class="notice">Название: ручной ввод → title страницы → Scene N. Проверка и сохранение не запускают сцену.</div>
+    <div class="form-actions"><button class="btn" id="cancelSource">Отмена</button><button class="btn primary" id="saveSource">Сохранить</button></div>`);
+    if(s){
+      $('#editScene').onclick=()=>{closeModal();addSceneModalEdit(s.id)};
+      $('#checkScene').onclick=()=>{closeModal();selectScene(s.id)};
+      $('#duplicateScene').onclick=()=>{const copy={...s,id:'scene-'+(++state.sceneCounter),name:s.name+' copy',status:'unchecked'};state.scenes.push(copy);closeModal();renderScenes();toast('Сцена продублирована');addLog('INFO',`Scene duplicated: ${copy.name}`,'scene.library')};
+      $('#deleteScene').onclick=()=>{if(s.id===state.currentId){toast('Нельзя удалить текущую сцену в демо');return}state.scenes=state.scenes.filter(x=>x.id!==s.id);closeModal();renderScenes();toast('Сцена удалена из списка')};
+      return;
+    }
+    $('#cancelSource').onclick=closeModal;
+    $('#sourceType').onchange=()=>{const t=$('#sourceType').value;$('#sourceUrl').placeholder=t==='camera'?'rtsp://camera.local/stream':t==='file'||t==='image'?'media/file.mp4':'https://example.com'};
+    $('#checkUrl').onclick=async()=>{
+      const url=$('#sourceUrl').value.trim();const manual=$('#sourceName').value.trim();const feedback=$('#sourceFeedback');
+      if(!url){feedback.innerHTML='<div class="notice error">Сначала введите адрес или путь.</div>';return}
+      feedback.innerHTML='<div class="notice">Проверяем источник…</div>';const type=$('#sourceType').value;
+      // Offline demo: no external requests are made. For web URLs, emulate title extraction for the sample domain.
+      setTimeout(()=>{
+        let title='';
+        try{const parsed=new URL(url);if(parsed.hostname==='example.com'||parsed.hostname==='www.example.com')title='Example Domain';else if(parsed.hostname==='example.org')title='Example Domain';}catch(e){}
+        if(manual){feedback.innerHTML=`<div class="notice success">Проверка завершена в демо. Будет использовано введённое название: <strong>${esc(manual)}</strong>.</div>`;}
+        else if(title){$('#sourceName').value=title;feedback.innerHTML=`<div class="notice success">Найден title страницы: <strong>${esc(title)}</strong>. Его можно изменить вручную.</div>`;}
+        else {$('#sourceName').value=defaultSceneName();feedback.innerHTML=`<div class="notice warn">Реальный title недоступен в автономном демо. Назначено имя по умолчанию: <strong>${esc($('#sourceName').value)}</strong>. Можно отредактировать.</div>`;}
+      },500);
+    };
+    $('#saveSource').onclick=()=>{
+      const url=$('#sourceUrl').value.trim();if(!url){$('#sourceFeedback').innerHTML='<div class="notice error">Укажите адрес или путь.</div>';return}
+      const type=$('#sourceType').value;let name=$('#sourceName').value.trim()||defaultSceneName();
+      if(state.scenes.some(x=>x.name.toLowerCase()===name.toLowerCase())){let base=name,n=2;while(state.scenes.some(x=>x.name.toLowerCase()===`${base} ${n}`.toLowerCase()))n++;name=`${base} ${n}`;}
+      const map={web:{type:'Web / URL',kind:'web'},stream:{type:'Видео / поток',kind:'web'},camera:{type:'Camera / Stream',kind:'camera'},file:{type:'Локальный файл',kind:'file'},image:{type:'Изображение',kind:'file'}};
+      const scene={id:'scene-'+(++state.sceneCounter),name,url,...map[type],status:'unchecked'};
+      state.scenes.push(scene);closeModal();renderScenes();toast('Источник добавлен, но не запущен');addLog('INFO',`Source added: ${name}`,'scene.library');
+    };
+  }
+  function addSceneModalEdit(id){const s=state.scenes.find(x=>x.id===id);if(!s)return;openModal('Редактировать источник',`<div class="field"><label>Название</label><input id="editName" value="${esc(s.name)}"></div><div class="field"><label>Адрес или путь</label><input id="editUrl" value="${esc(s.url||'')}"></div><div class="form-actions"><button class="btn" id="cancelEdit">Отмена</button><button class="btn primary" id="saveEdit">Сохранить</button></div>`);$('#cancelEdit').onclick=closeModal;$('#saveEdit').onclick=()=>{const name=$('#editName').value.trim();if(!name){toast('Название не может быть пустым');return}s.name=name;s.url=$('#editUrl').value.trim();if(s.status!=='current')s.status='unchecked';closeModal();renderScenes();toast('Изменения сохранены')}}
+  function populateSceneSelect(){const sel=$('#startupScene');if(!sel)return;const old=sel.value;sel.innerHTML=state.scenes.map(s=>`<option value="${s.id}">${esc(s.name)}</option>`).join('');if(state.scenes.some(s=>s.id===old))sel.value=old;}
+  function addLog(level,message,context){const d=new Date();state.logs.unshift({time:d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),level,message,context});renderLogs()}
+  function renderLogs(){const level=$('#logLevel').value,query=$('#logSearch').value.toLowerCase();const list=state.logs.filter(l=>(level==='ALL'||l.level===level)&&(`${l.message} ${l.context}`.toLowerCase().includes(query)));const visible=list.slice(0,state.logVisible);$('#logCount').textContent=`${visible.length} из ${list.length} записей`;$('#logList').innerHTML=visible.length?visible.map(l=>`<div class="log-row"><div class="log-top"><span class="log-level ${l.level.toLowerCase()}">${l.level}</span><span class="subtle">${l.time}</span></div><div class="log-message">${esc(l.message)}</div><div class="log-context">${esc(l.context)}</div></div>`).join(''):'<div class="empty">Нет записей по выбранному фильтру.</div>'}
+  function renderEvents(){$('#eventList').innerHTML=state.events.length?state.events.slice().sort((a,b)=>a.time.localeCompare(b.time)).map(e=>`<div class="event"><div class="event-time">${esc(e.time)}</div><div class="event-rail"></div><div><div class="event-title">${esc(e.name)}</div><div class="event-sub">${esc(e.repeat)}</div></div><button class="btn small" data-event-more="${e.id}">⋯</button></div>`).join(''):'<div class="empty">Расписание пустое.<br>Добавьте первое событие.</div>'}
+  function addEventModal(id=null){const e=id?state.events.find(x=>x.id===id):null;openModal(e?'Событие расписания':'Добавить событие',`<div class="field"><label for="eventTime">Время</label><input id="eventTime" type="time" value="${e?e.time:'09:00'}"></div><div class="field"><label for="eventScene">Сцена</label><select id="eventScene">${state.scenes.map(s=>`<option value="${s.id}" ${e&&e.name===s.name?'selected':''}>${esc(s.name)}</option>`).join('')}</select></div><div class="field"><label for="eventRepeat">Повторение</label><select id="eventRepeat"><option ${e&&e.repeat==='Ежедневно'?'selected':''}>Ежедневно</option><option ${e&&e.repeat==='Пн–Пт'?'selected':''}>Пн–Пт</option><option ${e&&e.repeat==='Один раз'?'selected':''}>Один раз</option></select></div><div class="form-actions"><button class="btn" id="cancelEvent">Отмена</button>${e?'<button class="btn danger" id="deleteEvent">Удалить</button>':''}<button class="btn primary" id="saveEvent">Сохранить</button></div>`);
+    $('#cancelEvent').onclick=closeModal;$('#saveEvent').onclick=()=>{const scene=state.scenes.find(s=>s.id===$('#eventScene').value);const item={id:e?e.id:++state.eventCounter,time:$('#eventTime').value||'09:00',name:scene?scene.name:'Scene',repeat:$('#eventRepeat').value};if(e)Object.assign(e,item);else state.events.push(item);closeModal();renderEvents();toast('Событие сохранено')};if(e)$('#deleteEvent').onclick=()=>{state.events=state.events.filter(x=>x.id!==e.id);closeModal();renderEvents();toast('Событие удалено')}}
+  function renderLayers(){$('#layerList').innerHTML=state.layers.map(l=>`<div class="layer-row"><div class="layer-icon">${l.icon}</div><div class="grow">${esc(l.name)}<div class="subtle">${esc(l.type)}</div></div><button class="switch ${l.enabled?'on':''}" data-layer="${l.id}" aria-label="Включить слой"></button><button class="btn small" data-layer-edit="${l.id}">⋯</button></div>`).join('')}
+  function renderNavSettings(){$('#navSettings').innerHTML=state.nav.map((n,i)=>`<div class="setting-row"><div class="row grow"><div class="layer-icon" style="width:29px;height:29px">${n.icon}</div><div><div class="setting-title">${esc(n.name)}</div><div class="setting-desc">${n.id}</div></div></div><div class="order-controls"><button data-move="${n.id}" data-dir="-1" ${i===0?'disabled':''} title="Вверх">↑</button><button data-move="${n.id}" data-dir="1" ${i===state.nav.length-1?'disabled':''} title="Вниз">↓</button></div><button class="switch ${n.visible?'on':''}" data-nav-visible="${n.id}" aria-label="Видимость ${esc(n.name)}"></button></div>`).join('')}
+  // Delegated interactions
+  document.addEventListener('click',e=>{
+    const page=e.target.closest('[data-page]');if(page){setPage(page.dataset.page);return}
+    const view=e.target.closest('[data-view]');if(view){state.view=view.dataset.view;$$('[data-view]').forEach(b=>b.classList.toggle('active',b===view));renderScenes();return}
+    const select=e.target.closest('[data-select]');if(select&&!e.target.closest('[data-play],[data-more],[data-check]')){selectScene(select.dataset.select);return}
+    const play=e.target.closest('[data-play]');if(play){e.stopPropagation();playScene(play.dataset.play);return}
+    const check=e.target.closest('[data-check]');if(check){e.stopPropagation();selectScene(check.dataset.check);return}
+    const more=e.target.closest('[data-more]');if(more){e.stopPropagation();addSceneModal(more.dataset.more);return}
+    const eventMore=e.target.closest('[data-event-more]');if(eventMore){addEventModal(Number(eventMore.dataset.eventMore));return}
+    const sw=e.target.closest('[data-switch]');if(sw){const key=sw.dataset.switch;state[key]=!state[key];sw.classList.toggle('on',state[key]);if(key==='showStatusbar')$('.statusbar').style.display=state[key]?'flex':'none';if(key==='overlayEnabled'){updateOverlay();$('#overlayStatus').textContent=state[key]?'Включён':'Выключен'}if(key==='scheduleEnabled')toast(state[key]?'Расписание включено в демо':'Расписание выключено в демо');return}
+    const rot=e.target.closest('[data-rotation]');if(rot){state.rotation=Number(rot.dataset.rotation);$$('[data-rotation]').forEach(b=>b.classList.toggle('selected',b===rot));toast(`Поворот: ${state.rotation}° (демо)`);return}
+    const scale=e.target.closest('[data-scale]');if(scale){state.scale=scale.dataset.scale;$$('[data-scale]').forEach(b=>b.classList.toggle('selected',b===scale));toast(state.scale==='fit'?'Режим: вписать':'Режим: заполнить');return}
+    const layer=e.target.closest('[data-layer]');if(layer){const l=state.layers.find(x=>x.id===Number(layer.dataset.layer));if(l){l.enabled=!l.enabled;renderLayers();updateOverlay()}return}
+    const layerEdit=e.target.closest('[data-layer-edit]');if(layerEdit){const l=state.layers.find(x=>x.id===Number(layerEdit.dataset.layerEdit));if(l)openModal('Настройки слоя',`<div class="field"><label>Название слоя</label><input id="layerNameEdit" value="${esc(l.name)}"></div><div class="form-actions"><button class="btn" id="cancelLayer">Отмена</button><button class="btn primary" id="saveLayer">Сохранить</button></div>`);$('#cancelLayer').onclick=closeModal;$('#saveLayer').onclick=()=>{l.name=$('#layerNameEdit').value.trim()||l.name;closeModal();renderLayers();toast('Слой обновлён')};return}
+    const navVis=e.target.closest('[data-nav-visible]');if(navVis){const n=state.nav.find(x=>x.id===navVis.dataset.navVisible);if(n){if(n.id==='home'&&n.visible){toast('Главную нельзя скрыть');return}n.visible=!n.visible;if(!n.visible&&state.activePage===n.id)state.activePage='home';renderNavSettings();renderNav();$$('.page').forEach(p=>p.classList.toggle('active',p.id==='page-'+state.activePage));}return}
+    const move=e.target.closest('[data-move]');if(move){const i=state.nav.findIndex(n=>n.id===move.dataset.move),j=i+Number(move.dataset.dir);if(j>=0&&j<state.nav.length){[state.nav[i],state.nav[j]]=[state.nav[j],state.nav[i]];renderNavSettings();renderNav()}return}
+  });
+  $('#playingToggle').onclick=()=>{state.playingExpanded=!state.playingExpanded;$('#playingDetails').style.display=state.playingExpanded?'block':'none';$('#playingChevron').textContent=state.playingExpanded?'⌃':'⌄'};
+  $('#addScene').onclick=()=>addSceneModal();$('#modalClose').onclick=closeModal;$('#modalBackdrop').addEventListener('click',e=>{if(e.target===$('#modalBackdrop'))closeModal()});
+  $('#refreshShot').onclick=()=>{const b=$('#refreshShot');b.textContent='…';b.disabled=true;$('#shotStatus').textContent='Обновление…';setTimeout(()=>{b.textContent='↻';b.disabled=false;const d=new Date();$('#shotStatus').textContent='Последнее обновление: '+d.toLocaleTimeString('ru-RU');addLog('INFO','Screenshot refreshed (demo)','device.capture');toast('Превью обновлено в демо')},700)};
+  $('#fullscreenShot').onclick=()=>$('#fullscreenView').classList.add('show');$('#closeFullscreen').onclick=()=>$('#fullscreenView').classList.remove('show');$('#fullscreenView').addEventListener('click',e=>{if(e.target===$('#fullscreenView'))$('#fullscreenView').classList.remove('show')});
+  $('#reloadPlayer').onclick=()=>{toast('Перезапуск плеера в демо…');addLog('INFO','Player reload requested (demo)','player.command');setTimeout(()=>toast('Плеер обновлён в демо'),650)};
+  $('#addEvent').onclick=()=>addEventModal();$('#refreshLogs').onclick=()=>{addLog('INFO','Manual log refresh (demo)','diagnostics');toast('Логи обновлены')};
+  $('#logLevel').onchange=renderLogs;$('#logSearch').oninput=renderLogs;$('#loadMoreLogs').onclick=()=>{state.logVisible+=5;renderLogs()};
+  $('#copyLogs').onclick=()=>{const level=$('#logLevel').value,q=$('#logSearch').value.toLowerCase();const lines=state.logs.filter(l=>(level==='ALL'||l.level===level)&&(`${l.message} ${l.context}`.toLowerCase().includes(q))).slice(0,state.logVisible).map(l=>`${l.time} ${l.level} ${l.message} [${l.context}]`).join('\n');if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(lines).then(()=>toast('Логи скопированы')).catch(()=>toast(lines?'Выделите текст в логах вручную':'Нет логов для копирования'));else{const ta=document.createElement('textarea');ta.value=lines;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');toast('Логи скопированы')}catch(e){toast('Копирование недоступно')}ta.remove()}};
+  $('#checkConfig').onclick=()=>{const chip=$('#resourceChip');chip.textContent='Проверено';chip.style.color='var(--green)';$('#resourceStatus').textContent='Демо: обязательные поля заполнены';toast('Конфигурация проверена в демо')};
+  $('#saveBootstrap').onclick=()=>{toast('Настройки Bootstrap сохранены локально в демо');addLog('INFO','Bootstrap settings saved (demo)','bootstrap')};
+  $('#overlayText').oninput=()=>{$('#overlayCaption').textContent=$('#overlayText').value;};
+  function updateOverlay(){const enabled=state.overlayEnabled;$('#overlayPreview').style.opacity=enabled?'1':'.42';$('#overlayLogo').style.display=enabled&&state.logoEnabled?'block':'none';$('#overlayCaption').style.display=enabled&&state.captionEnabled?'block':'none';$('#overlayStatus').textContent=enabled?'Включён':'Выключен'}
+  $('#applyOverlay').onclick=()=>{updateOverlay();addLog('INFO','Overlay applied (demo)','overlay');toast('Оверлей применён в демо')};
+  $('#resetOverlay').onclick=()=>{$('#overlayText').value='Трансляция · Demo Scene';$('#overlayCaption').textContent=$('#overlayText').value;state.logoEnabled=true;state.captionEnabled=true;state.overlayEnabled=true;$$('[data-switch]').forEach(b=>{if(['logoEnabled','captionEnabled','overlayEnabled'].includes(b.dataset.switch))b.classList.add('on')});updateOverlay();toast('Оверлей сброшен')};
+  $('#addLayer').onclick=()=>{openModal('Добавить слой',`<div class="field"><label>Тип слоя</label><select id="newLayerType"><option value="Текст">Текст</option><option value="Графика">Графика</option><option value="Изображение">Изображение</option></select></div><div class="field"><label>Название</label><input id="newLayerName" placeholder="Новый слой"></div><div class="form-actions"><button class="btn" id="cancelNewLayer">Отмена</button><button class="btn primary" id="saveNewLayer">Добавить</button></div>`);$('#cancelNewLayer').onclick=closeModal;$('#saveNewLayer').onclick=()=>{const name=$('#newLayerName').value.trim()||'Новый слой';const type=$('#newLayerType').value;state.layers.push({id:++state.layerCounter,name,type,enabled:true,icon:type==='Текст'?'T':'▧'});closeModal();renderLayers();toast('Слой добавлен')}};
+  $('#defaultView').onchange=()=>{state.view=$('#defaultView').value;$$('[data-view]').forEach(b=>b.classList.toggle('active',b.dataset.view===state.view));renderScenes()};
+  $('#saveDeviceSettings').onclick=()=>{const name=$('#deviceRename').value.trim()||'Media Hub';$('#deviceName').innerHTML=`${esc(name)} <span class="subtle">· Standalone</span>`;$('#deviceMini').textContent=name;toast('Настройки устройства сохранены в демо')};
+  $('#resetSettings').onclick=()=>{state.nav.forEach(n=>n.visible=true);state.nav.sort((a,b)=>['home','schedule','overlay','bootstrap','logs','settings'].indexOf(a.id)-['home','schedule','overlay','bootstrap','logs','settings'].indexOf(b.id));state.view='grid';$('#defaultView').value='grid';renderNavSettings();renderNav();renderScenes();toast('Настройки интерфейса сброшены')};
+  function updateClock(){const d=new Date();$('#clock').textContent=d.toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});}
+  const now=new Date();$('#todayLabel').textContent=now.toLocaleDateString('ru-RU',{day:'numeric',month:'long',year:'numeric'});
+  // Initial state
+  renderNav();renderScenes();renderEvents();renderLayers();renderLogs();renderNavSettings();populateSceneSelect();updateOverlay();updateClock();setInterval(updateClock,30000);
+})();
+</script>
+</body>
+</html>
