@@ -4,21 +4,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <meta name="theme-color" content="#000000">
-  <meta name="color-scheme" content="dark">
   <title>Стопмоушен конфа</title>
   <style>
-    html, body {
-      margin: 0;
-      height: 100%;
-      background: #000;
-      overflow: hidden;
-      touch-action: none;
-    }
-    body {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+    html, body { margin: 0; height: 100%; background: #000; overflow: hidden; }
+    body { display: flex; align-items: center; justify-content: center; }
     video {
       display: block;
       width: 100%;
@@ -31,96 +20,93 @@
   </style>
 </head>
 <body>
-  <!-- no src here: play from local blob so seek/loop work in Android WebView -->
-  <video id="v" muted autoplay playsinline webkit-playsinline preload="auto"></video>
+  <video
+    id="v"
+    src="stopmotion-confa.mp4"
+    muted
+    autoplay
+    playsinline
+    webkit-playsinline
+    preload="auto"
+  ></video>
   <script>
     (function () {
-      var VIDEO_PATH = "stopmotion-confa.mp4";
-      var MEDIA_CACHE = "stopmotion-confa-media-v2";
+      // Seek (currentTime=0.1) на этом mp4 даёт MEDIA_ERR_DECODE.
+      // Рестарт: video.load() + play(). Hold последнего кадра — 3с.
       var video = document.getElementById("v");
-      var blobUrl = null;
+      var HOLD_MS = 3000;
+      var FALLBACK_DUR = 5.48;
+      var timer = null;
+      var holdTimer = null;
       var starting = false;
 
-      function kick() {
-        if (starting) return;
-        starting = true;
-        var p = video.play();
-        if (p && typeof p.then === "function") {
-          p.then(function () { starting = false; }).catch(function () { starting = false; });
-        } else {
-          starting = false;
-        }
+      video.loop = false;
+      video.muted = true;
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js?v=7").catch(function () {});
+      }
+
+      function clearT() {
+        if (timer) { clearTimeout(timer); timer = null; }
+        if (holdTimer) { clearTimeout(holdTimer); holdTimer = null; }
+      }
+
+      function arm() {
+        clearT();
+        var dur = (video.duration && isFinite(video.duration) && video.duration > 0.5)
+          ? video.duration
+          : FALLBACK_DUR;
+        var playMs = Math.max(500, dur * 1000 - 80);
+
+        timer = setTimeout(function () {
+          try { video.pause(); } catch (e) {}
+          holdTimer = setTimeout(function () {
+            restart();
+          }, HOLD_MS);
+        }, playMs);
       }
 
       function restart() {
         if (starting) return;
-        try { video.currentTime = 0; } catch (e) {}
-        kick();
-      }
+        starting = true;
+        clearT();
 
-      // Blob playback: do not use native loop (unreliable in Android WebView).
-      video.loop = false;
-      video.addEventListener("ended", restart);
-      document.addEventListener("visibilitychange", function () {
-        if (!document.hidden) kick();
-      });
-      setInterval(function () {
-        if (video.error || !blobUrl) return;
-        if (video.ended) restart();
-        else if (video.paused && video.readyState >= 2) kick();
-      }, 500);
+        try { video.pause(); } catch (e) {}
+        video.muted = true;
 
-      function playBlob(blob) {
-        if (blobUrl) {
-          try { URL.revokeObjectURL(blobUrl); } catch (e) {}
-        }
-        blobUrl = URL.createObjectURL(blob);
-        video.src = blobUrl;
-        video.load();
-        kick();
-      }
-
-      function fromNetwork() {
-        return fetch(VIDEO_PATH, { cache: "force-cache" }).then(function (res) {
-          if (!res.ok) throw new Error("video fetch " + res.status);
-          var clone = res.clone();
-          if (window.caches) {
-            caches.open(MEDIA_CACHE).then(function (cache) {
-              cache.put(VIDEO_PATH, clone);
-            }).catch(function () {});
+        function go() {
+          video.removeEventListener("loadeddata", go);
+          var p = video.play();
+          if (p && p.then) {
+            p.then(function () {
+              starting = false;
+              arm();
+            }).catch(function () {
+              starting = false;
+              setTimeout(restart, 700);
+            });
+          } else {
+            starting = false;
+            arm();
           }
-          return res.blob();
-        });
+        }
+
+        video.addEventListener("loadeddata", go);
+        video.load();
+
+        video.onerror = function () {
+          video.removeEventListener("loadeddata", go);
+          starting = false;
+          setTimeout(restart, 800);
+        };
       }
 
-      function fromCache() {
-        if (!window.caches) return Promise.reject();
-        return caches.open(MEDIA_CACHE).then(function (cache) {
-          return cache.match(VIDEO_PATH).then(function (hit) {
-            if (!hit) throw new Error("no cache");
-            return hit.blob();
-          });
-        });
-      }
-
-      fromCache()
-        .catch(function () { return fromNetwork(); })
-        .then(function (blob) {
-          playBlob(blob);
-          // Refresh cache in background when we started from cache.
-          fromNetwork().then(function (fresh) {
-            if (fresh && fresh.size && blob && fresh.size !== blob.size) playBlob(fresh);
-          }).catch(function () {});
-        })
-        .catch(function () {
-          // Last resort: direct URL (may not loop well offline).
-          video.src = VIDEO_PATH;
-          video.load();
-          kick();
-        });
-
-      if ("serviceWorker" in navigator) {
-        navigator.serviceWorker.register("./sw.js?v=2").catch(function () {});
+      var p0 = video.play();
+      if (p0 && p0.then) {
+        p0.then(arm).catch(restart);
+      } else {
+        arm();
       }
     })();
   </script>
