@@ -1,6 +1,7 @@
-/* Offline cache for stopmotion-confa page + mp4 (Android WebView / kiosk). */
-var CACHE = "stopmotion-confa-v1";
-var PRECACHE = ["./", "./index.html", "./stopmotion-confa.mp4", "./sw.js"];
+/* Shell-only SW. Video is played from a blob URL (page Cache Storage) so
+   Android WebView can seek/loop without broken HTTP Range responses. */
+var CACHE = "stopmotion-confa-shell-v2";
+var PRECACHE = ["./", "./index.html", "./sw.js"];
 
 self.addEventListener("install", function (event) {
   event.waitUntil(
@@ -16,7 +17,10 @@ self.addEventListener("activate", function (event) {
   event.waitUntil(
     caches.keys().then(function (keys) {
       return Promise.all(
-        keys.filter(function (k) { return k !== CACHE; }).map(function (k) {
+        keys.filter(function (k) {
+          return k.indexOf("stopmotion-confa") === 0 && k !== CACHE &&
+            k.indexOf("media-") === -1;
+        }).map(function (k) {
           return caches.delete(k);
         })
       );
@@ -26,37 +30,28 @@ self.addEventListener("activate", function (event) {
   );
 });
 
-self.addEventListener("message", function (event) {
-  var data = event.data || {};
-  if (data.type !== "PRECACHE" || !data.urls) return;
-  event.waitUntil(
-    caches.open(CACHE).then(function (cache) {
-      return Promise.all(
-        data.urls.map(function (url) {
-          return cache.add(url).catch(function () {});
-        })
-      );
-    })
-  );
-});
-
 self.addEventListener("fetch", function (event) {
   var req = event.request;
   if (req.method !== "GET") return;
 
-  event.respondWith(
-    caches.match(req).then(function (cached) {
-      if (cached) return cached;
-      return fetch(req).then(function (res) {
-        if (!res || res.status !== 200 || res.type === "opaque") return res;
-        var clone = res.clone();
-        caches.open(CACHE).then(function (cache) {
-          cache.put(req, clone);
-        });
+  var url = new URL(req.url);
+  // Never intercept the mp4 — let the page fetch the full file into a blob.
+  if (/\.mp4$/i.test(url.pathname)) return;
+
+  // HTML/shell: network first, cache fallback (so loop fixes ship to stands).
+  if (url.pathname.indexOf("/stopmotion-confa") !== -1) {
+    event.respondWith(
+      fetch(req).then(function (res) {
+        if (res && res.status === 200) {
+          var clone = res.clone();
+          caches.open(CACHE).then(function (cache) { cache.put(req, clone); });
+        }
         return res;
       }).catch(function () {
-        return caches.match("./index.html");
-      });
-    })
-  );
+        return caches.match(req).then(function (hit) {
+          return hit || caches.match("./index.html");
+        });
+      })
+    );
+  }
 });
