@@ -51,6 +51,22 @@
         if (p && typeof p.catch === "function") p.catch(function () {});
       }
 
+      function restart() {
+        try { video.currentTime = 0; } catch (e) {}
+        kick();
+      }
+
+      // Android WebView often ignores the loop attribute; force seamless restart.
+      video.loop = true;
+      video.addEventListener("ended", restart);
+      video.addEventListener("pause", function () {
+        if (video.ended) restart();
+        else if (video.duration && isFinite(video.duration) &&
+                 video.currentTime >= video.duration - 0.25) restart();
+      });
+      setInterval(function () {
+        if (video.paused || video.ended) restart();
+      }, 1000);
       video.addEventListener("canplay", kick);
       video.addEventListener("loadeddata", kick);
       document.addEventListener("visibilitychange", function () {
