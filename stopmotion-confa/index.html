@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="color-scheme" content="dark">
+  <title>Стопмоушен конфа</title>
+  <style>
+    html, body {
+      margin: 0;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      touch-action: none;
+    }
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    video {
+      display: block;
+      width: 100%;
+      height: 100%;
+      max-width: 100vw;
+      max-height: 100vh;
+      object-fit: contain;
+      background: #000;
+    }
+  </style>
+</head>
+<body>
+  <video
+    id="v"
+    src="stopmotion-confa.mp4"
+    autoplay
+    muted
+    loop
+    playsinline
+    webkit-playsinline
+    preload="auto"
+  ></video>
+  <script>
+    (function () {
+      var video = document.getElementById("v");
+      var ASSETS = ["./", "./index.html", "./stopmotion-confa.mp4", "./sw.js"];
+
+      function kick() {
+        var p = video.play();
+        if (p && typeof p.catch === "function") p.catch(function () {});
+      }
+
+      video.addEventListener("canplay", kick);
+      video.addEventListener("loadeddata", kick);
+      document.addEventListener("visibilitychange", function () {
+        if (!document.hidden) kick();
+      });
+      kick();
+
+      if ("serviceWorker" in navigator) {
+        navigator.serviceWorker.register("./sw.js").catch(function () {});
+        if (navigator.serviceWorker.ready) {
+          navigator.serviceWorker.ready.then(function (reg) {
+            if (reg.active) {
+              reg.active.postMessage({ type: "PRECACHE", urls: ASSETS });
+            }
+          }).catch(function () {});
+        }
+      }
+    })();
+  </script>
+</body>
+</html>
