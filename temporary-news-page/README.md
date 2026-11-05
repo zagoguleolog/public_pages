@@ -2,6 +2,17 @@
 
 Полноэкранный веб-плеер для временной трансляции на телевизорах Media Hub.
 
+## Target совместимости
+
+| Платформа | Уровень | Статус (2026-11-05) |
+| --- | --- | --- |
+| Android Edge WebView | **A** (shell) / **не A** (новостной кадр) | Shell приведён к baseline A. Новостной слой — nested `iframe` на Yandex Cloud screen с CSS Grid / `inset` / современным JS → на слабых телеках парка **не гарантирован**. |
+| LG webOS 1.4 | — | Не target. Для LG — отдельный legacy page. |
+
+Канон прогона: [android-apk/web-page-compatibility.md](https://github.com/zagoguleolog/media_hub/blob/main/docs/features/android-apk/web-page-compatibility.md) (ссылка также в корневом [README](../README.md)).
+
+**Что ломает слабые Android:** не таймер фото, а iframe-новости (`newsUrl`). Пока нет self-contained новостного leaf / Playlist IMAGE↔WEB без nested frame — на «не тянут» считать эту страницу условно годной только там, где WebView ≈ Chrome 90+.
+
 ## Цикл (6 минут)
 
 1. Новости — 60 с  

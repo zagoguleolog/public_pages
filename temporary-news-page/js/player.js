@@ -24,9 +24,9 @@
     cycleMs += sequence[i].duration * 1000;
   }
 
-  var params = new URLSearchParams(window.location.search || "");
-  var debug = params.get("debug") === "1";
-  var startAt = resolveStartAt(params.get("startAt") || cfg.startAt);
+  var query = parseQuery(window.location.search || "");
+  var debug = query.debug === "1";
+  var startAt = resolveStartAt(query.startAt != null ? query.startAt : cfg.startAt);
   var pageLoadedAt = Date.now();
 
   var newsLayer = document.getElementById("news-layer");
@@ -43,7 +43,29 @@
   var reloadTimer = null;
 
   if (debug) {
-    document.body.classList.add("debug");
+    document.body.className += (document.body.className ? " " : "") + "debug";
+  }
+
+  function parseQuery(search) {
+    var out = {};
+    var raw = String(search || "");
+    if (raw.charAt(0) === "?") {
+      raw = raw.slice(1);
+    }
+    if (!raw) {
+      return out;
+    }
+    var parts = raw.split("&");
+    for (var p = 0; p < parts.length; p++) {
+      if (!parts[p]) {
+        continue;
+      }
+      var pair = parts[p].split("=");
+      var key = decodeURIComponent(pair[0].replace(/\+/g, " "));
+      var val = pair.length > 1 ? decodeURIComponent(pair.slice(1).join("=").replace(/\+/g, " ")) : "";
+      out[key] = val;
+    }
+    return out;
   }
 
   function resolveStartAt(raw) {
@@ -107,16 +129,16 @@
   }
 
   function showNews() {
-    newsLayer.classList.add("is-active");
-    photoLayer.classList.remove("is-active");
+    newsLayer.className = "layer is-active";
+    photoLayer.className = "layer";
   }
 
   function showPhoto(src) {
     if (src && photoImg.getAttribute("src") !== src) {
       photoImg.setAttribute("src", src);
     }
-    photoLayer.classList.add("is-active");
-    newsLayer.classList.remove("is-active");
+    photoLayer.className = "layer is-active";
+    newsLayer.className = "layer";
   }
 
   function applyPhase(phase) {
@@ -222,12 +244,32 @@
   function armPageReload() {
     var ms = pageReloadHours * 60 * 60 * 1000;
     reloadTimer = setTimeout(function () {
-      var url = new URL(window.location.href);
-      // сохраняем исходный startAt, чтобы после reload фаза не сбилась
-      if (!url.searchParams.has("startAt")) {
-        url.searchParams.set("startAt", String(startAt));
+      var href = window.location.href;
+      var hash = "";
+      var hashAt = href.indexOf("#");
+      if (hashAt >= 0) {
+        hash = href.slice(hashAt);
+        href = href.slice(0, hashAt);
       }
-      window.location.replace(url.toString());
+      var qAt = href.indexOf("?");
+      var base = qAt >= 0 ? href.slice(0, qAt) : href;
+      var q = parseQuery(qAt >= 0 ? href.slice(qAt) : "");
+      if (!q.startAt) {
+        q.startAt = String(startAt);
+      }
+      var keys = [];
+      for (var k in q) {
+        if (Object.prototype.hasOwnProperty.call(q, k)) {
+          keys.push(k);
+        }
+      }
+      var pairs = [];
+      for (var i = 0; i < keys.length; i++) {
+        pairs.push(
+          encodeURIComponent(keys[i]) + "=" + encodeURIComponent(q[keys[i]])
+        );
+      }
+      window.location.replace(base + "?" + pairs.join("&") + hash);
     }, ms);
   }
 

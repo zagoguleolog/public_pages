@@ -1,0 +1,14 @@
+---
+description: Favicon обязателен на всех веб-страницах проекта
+alwaysApply: true
+---
+
+# Favicon
+
+Канон: `branding/favicon.png` (+ `favicon.ico`, `favicon-32.png`).
+
+При создании или правке любой HTML-страницы этого репозитория:
+
+1. В `<head>` добавить `<link rel="icon" …>` на иконку проекта (см. `branding/README.md`).
+2. Убедиться, что файл доступен по URL страницы (копия в web-root / static).
+3. Не оставлять дефолтную серую «планету» браузера.
