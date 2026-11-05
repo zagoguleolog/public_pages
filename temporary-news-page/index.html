@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <meta name="theme-color" content="#000000">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Временный плеер — Новости + фотографии</title>
+  <link rel="stylesheet" href="./css/style.css">
+  <script>
+    /* ============================================================
+       НАСТРОЕЧНЫЙ JSON — тайминги, ссылки, фото
+       URL: ?startAt=<ms|sec|ISO>  синхронизация ТВ
+            ?debug=1               показать текущую фазу
+       ============================================================ */
+    var CONFIG = {
+      "newsUrl": "https://hse-xforum-screen-b1g4f2ovc3kv97j09831.website.yandexcloud.net/index.html",
+
+      "newsDuration": 60,
+      "photoDuration": 60,
+
+      "photos": [
+        "./assets/photo-1.jpg",
+        "./assets/photo-2.jpg",
+        "./assets/photo-3.jpg"
+      ],
+
+      "repeat": true,
+
+      "tickMs": 250,
+      "pageReloadHours": 12,
+      "photoRetryMs": 5000,
+
+      "startAt": null
+    };
+  </script>
+</head>
+<body>
+  <div id="stage">
+    <div id="news-layer" class="layer is-active" aria-hidden="false">
+      <iframe
+        id="news-frame"
+        title="Новости HSE"
+        src="about:blank"
+        allow="autoplay"
+        referrerpolicy="no-referrer-when-downgrade"
+      ></iframe>
+    </div>
+
+    <div id="photo-layer" class="layer" aria-hidden="true">
+      <img id="photo-img" alt="" decoding="async">
+    </div>
+  </div>
+
+  <div id="debug" aria-hidden="true"></div>
+
+  <script src="./js/player.js"></script>
+</body>
+</html>
