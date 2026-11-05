@@ -1,16 +1,26 @@
-# HSE campus news screen
+# public_pages
 
-Public 16:9 news screen for HSE University — Saint Petersburg.
+Статический сайт на GitHub Pages: `https://zagoguleolog.github.io/public_pages/`
 
-The site is designed as a static GitHub Pages publication and supports legacy LG webOS browsers.
+Репозиторий: `https://github.com/zagoguleolog/public_pages`
 
-## Published pages
+## Правило публикации
 
-| Page | URL |
+Положить страницу на public_pages = **страница в репозитории** + **ссылка в эту корневую доку** с короткой пометкой, что это.
+
+Без строки в таблице ниже страница считается незадокументированной.
+
+## Публичные ссылки
+
+| Что это | URL |
 | --- | --- |
-| Root / legacy screen | https://zagoguleolog.github.io/public_pages/ |
-| HSE news vertical | https://zagoguleolog.github.io/public_pages/hse-news/vertical/ |
-| Temporary player: news + photos | https://zagoguleolog.github.io/public_pages/temporary-news-page/ |
-| Stop-motion confa | https://zagoguleolog.github.io/public_pages/stopmotion-confa/ |
+| Новости кампуса HSE, 16:9 для LG webOS (корень сайта) | https://zagoguleolog.github.io/public_pages/ |
+| Новости кампуса HSE, вертикальный экран 1080×1920 | https://zagoguleolog.github.io/public_pages/hse-news/vertical/ |
+| Новости кампуса HSE, упрощённый 16:9 под LG webOS 1.4 | https://zagoguleolog.github.io/public_pages/hse-news/lg-horizontal/ |
+| Временный плеер: вертикальные новости + 3 фото (цикл 6 мин) | https://zagoguleolog.github.io/public_pages/temporary-news-page/ |
+| Зацикленный stop-motion ролик «конфа» | https://zagoguleolog.github.io/public_pages/stopmotion-confa/ |
+| Тестовая лента новостей с баннером «испытания до понедельника» | https://zagoguleolog.github.io/public_pages/test-until-monday/ |
+| Демо мобильного UI Media Hub | https://zagoguleolog.github.io/public_pages/media_hub_mobile_demo.html |
+| Скрытая служебная страница (noindex; ключ только в `#fragment`) | https://zagoguleolog.github.io/public_pages/x/1facbbb5fc240b8454485be53602d029/ |
 
-Sync TVs on the temporary player with `?startAt=<unix_ms>`.
+Синхронизация временного плеера на нескольких ТВ: `...?startAt=<unix_ms>`.
